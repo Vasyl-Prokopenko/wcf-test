@@ -1,0 +1,10 @@
+# ignore build folders
+bin/
+obj/
+
+# ignore IDE files/folders
+*.user
+*.suo
+.vs/
+
+.idea/

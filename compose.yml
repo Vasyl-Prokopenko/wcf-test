@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  srv:
+    image: vprokopenko/test-wcf-srv
+    build:
+      context: .
+      dockerfile: ./srv/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - SVC_URL=net.tcp://srv:5000/Service.svc
+
+  client:
+    image: vprokopenko/test-wcf-client
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
+    depends_on:
+      - srv
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - SVC_URL=net.tcp://srv:5000/Service.svc
+      - DELAY_SEC=10
+      - MSG_SIZE_BYTE=2097152

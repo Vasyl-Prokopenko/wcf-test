@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wcf-server
+  labels:
+    app: wcf-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wcf-server
+  template:
+    metadata:
+      labels:
+        app: wcf-server
+    spec:
+      containers:
+      - name: wcf-server
+        image: vprokopenko/test-wcf-srv
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+        - name: SVC_URL
+          value: "net.tcp://wcf-server:5000/Service.svc"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wcf-server
+spec:
+  selector:
+    app: wcf-server
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wcf-client
+  labels:
+    app: wcf-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wcf-client
+  template:
+    metadata:
+      labels:
+        app: wcf-client
+    spec:
+      containers:
+      - name: wcf-client
+        image: vprokopenko/test-wcf-client
+        imagePullPolicy: Always
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+        - name: SVC_URL
+          #value: "net.tcp://10.171.65.82:5000/Service.svc"
+          value: "net.tcp://wcf-server:5000/Service.svc"
+        - name: DELAY_SEC
+          value: "10"
+        - name: MSG_SIZE_BYTE
+          value: "2097152"
